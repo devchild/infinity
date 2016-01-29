@@ -1,4 +1,4 @@
-#!./env/bin/python
+#!/Users/mario/infinity_env/bin/python
 # -*- coding: utf-8 -*-
 """Management script."""
 import os

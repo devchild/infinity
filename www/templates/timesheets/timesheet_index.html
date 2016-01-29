@@ -1,10 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
-</body>
-</html>
+{% block content %}
+<div class="body-content">
+    <div class="row">
+      <h1>Timesheets</h1>
+<a href="{{ url_for('timesheet.new') }}">New</a>
+
+    {% for item in timesheets %}
+    <li>
+    <ul>
+        {{ item }}<a href="{{ url_for('timesheet.edit', id=item.id) }}">Edit</a><a href="{{ url_for('timesheet.show', id=item.id) }}">Show</a>
+    </ul>
+    </li>
+
+{% endfor %}
+    </div>
+</div>
+{% endblock %}

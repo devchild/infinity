@@ -1,10 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "layout.html" %}
 
-</body>
-</html>
+{% block content %}
+
+{{ item.title }}
+
+<a href="{{ url_for('timesheet.destroy', id=item.id) }}">Delete</a>
+
+
+<table style="width:100%">
+<thead>
+    <tr>
+    <th colspan="10">
+        Timesheet Januari
+    </th>
+</tr>
+</thead>
+    <tbody id="week1">
+    <tr>
+        <th colspan="10">Week 1</th>
+    </tr>
+    <tr>
+        <td>Project X</td>
+        <td>Development</td>
+        <td>Programming</td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+    </tr>
+    <tr>
+        <td>Project X</td>
+        <td>Development</td>
+        <td>Programming</td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+    </tr>
+    </tbody>
+
+<tbody id="week1">
+    <tr>
+        <th colspan="10">Week 2</th>
+    </tr>
+    <tr>
+        <td>Project X</td>
+        <td>Development</td>
+        <td>Programming</td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+    </tr>
+    <tr>
+        <td>Project X</td>
+        <td>Development</td>
+        <td>Programming</td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+    </tr>
+    </tbody>
+</table>
+{% endblock %}
+

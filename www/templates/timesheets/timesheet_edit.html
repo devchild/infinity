@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block content %}
+ <form action="{{ url_for('timesheet.update', id = timesheet.id) }}" method=post class=add-entry>
+     {{ form.csrf_token }}
+     <dl>
+        {{ form.title.label }} {{ form.title(size=20) }}
+        <dd><input type=submit value=Save>
+      </dl>
+    </form>
+{% endblock %}
+
