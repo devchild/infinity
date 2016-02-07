@@ -2,15 +2,16 @@
 """Public section, including homepage and signup."""
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required, login_user, logout_user, current_user
+from sqlalchemy import or_, and_
 from wtforms.ext.sqlalchemy.orm import model_form
 
 from www.extensions import login_manager, db
 from www.public.forms import LoginForm
-from www.timesheet.forms import TimesheetForm
-from www.timesheet.models import Timesheet
+from www.timesheet.forms import EditTimesheetForm, CreateTimesheetForm
+from www.timesheet.models import Timesheet, TimesheetEntry
 from www.user.forms import RegisterForm
 from www.user.models import User
-from www.utils import flash_errors
+from www.utils import flash_errors, daterange
 
 blueprint = Blueprint('timesheet', __name__, url_prefix='/timesheets', static_folder='../static')
 
@@ -24,15 +25,15 @@ def index():
 @blueprint.route('/new', methods=['GET'])
 @login_required
 def new():
-    form = TimesheetForm(request.form)
+    form = CreateTimesheetForm(request.form)
     return render_template('timesheets/timesheet_create.html', form=form)
 
 @blueprint.route('/', methods=['POST'])
 @login_required
 def create():
-    form = TimesheetForm(request.form)
+    form = CreateTimesheetForm(request.form)
     if request.method=='POST' and form.validate():
-        timesheet = Timesheet(title=form.title.data)
+        timesheet = Timesheet(title=form.title.data, month=form.month.data, year=form.year.data )
         timesheet.user_id = current_user.id
         db.session.add(timesheet)
         db.session.commit()
@@ -49,25 +50,30 @@ def show(id):
 @blueprint.route('/<id>/edit', methods=['GET'])
 @login_required
 def edit(id):
-    form = model_form(Timesheet, TimesheetForm)
     timesheet = Timesheet.get_by_id(id)
-    form = TimesheetForm(request.form, timesheet)
-
-    if form.validate_on_submit():
-        form.populate_obj(timesheet)
-        timesheet.put()
-        flash("timesheet updated")
-        return redirect(url_for("timesheet.index"))
+    form = EditTimesheetForm(request.form, obj=timesheet)
+    form.populate_form(timesheet)
     return render_template("timesheets/timesheet_edit.html", form=form, timesheet=timesheet)
 
 @blueprint.route('/<id>', methods=['POST'])
 @login_required
 def update(id):
-    timesheet = Timesheet.query.get(id)
-    timesheet.title = request.form['title']
-    db.session.commit()
-    flash("timesheet updated")
-    return redirect(url_for('timesheet.index'))
+    timesheet = Timesheet.get_by_id(id)
+    form = EditTimesheetForm(request.form, obj=timesheet)
+
+    if form.validate_on_submit():
+        form.populate_obj(obj=timesheet)
+        db.session.commit()
+        flash("timesheet updated")
+        return redirect(url_for('timesheet.index'))
+    return render_template("timesheets/timesheet_edit.html", form=form, timesheet=timesheet)
+
+@blueprint.route('/<id>/print', methods=['GET'])
+@login_required
+def print(id):
+    timesheet = Timesheet.get_by_id(id)
+
+    return render_template("timesheets/timesheet_print.html", timesheet=timesheet)
 
 @blueprint.route('/<id>/delete', methods=['GET'])
 @login_required

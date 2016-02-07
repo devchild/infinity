@@ -1,12 +1,151 @@
 {% extends "layout.html" %}
 
 {% block content %}
- <form action="{{ url_for('timesheet.update', id = timesheet.id) }}" method=post class=add-entry>
-     {{ form.csrf_token }}
-     <dl>
-        {{ form.title.label }} {{ form.title(size=20) }}
-        <dd><input type=submit value=Save>
-      </dl>
+
+
+    {% if form.errors %}
+        <ul class="errors">
+            {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+                {% for error in field_errors %}
+                    <li>{{ form[field_name].label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form action="{{ url_for('timesheet.update', id=timesheet.id) }}" method=post class=add-entry>
+        {{ form.csrf_token }}
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Day</th>
+                {% for a in form.get_activities() %}
+                    <th>{{ a }}</th>
+                {% endfor %}
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for day in timesheet.included_days %}
+                <tr>
+                    <td>
+                        {{ day.strftime("%A - %d %B") }}
+                    </td>
+                    {% for a in form.get_activities() %}
+                        {% set activityloop = loop %}
+
+                        {% for t_entry in form.entries %}
+                            {% if t_entry.activity.data == a and t_entry.day.data == day.day %}
+                                {{ t_entry.csrf_token }}
+                                <td>
+                                    {{ t_entry.day }}{{ t_entry.duration(class="entry activity" + activityloop.index|string) }}{{ t_entry.activity() }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    <td class="total_row">#tot</td>
+                </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                {% for a in form.get_activities() %}
+                    <td class="total_activity{{ loop.index }}"></td>
+                {% endfor %}
+                <td class="total_total">#tot</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <input type=submit value=Save>
     </form>
+
+
+
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            //add keyup handler
+            $(document).ready(function () {
+
+                $("table input.entry").each(function () {
+                    Sum.call(this, "input.entry", ".total_total", "0:00");
+                    SumRow.call(this, "input.entry", ".total_row", "");
+                    $('input.entry').mask('#0:00', {placeholder: "0:00", reverse: true});
+
+                    $(this).keyup(function () {
+                        Sum.call(this, "input.entry", ".total_total", "0:00");
+                        SumRow.call(this, "input.entry", ".total_row", "");
+                    });
+                });
+                {% for a in form.get_activities() %}
+                    $("input.entry.activity{{ loop.index }}").each(function () {
+                        Sum.call(this, "input.entry.activity{{ loop.index }}", ".total_activity{{ loop.index }}", "0:00");
+                        $(this).keyup(function () {
+                            Sum.call(this, "input.entry.activity{{ loop.index }}", ".total_activity{{ loop.index }}", "0:00");
+                        });
+                    });
+                {% endfor %}
+            });
+
+            function Sum(inputClassFilter, outputClassFilter, emptyValue) {
+                var sum = moment.duration(0);
+                var hasInvalidValue = false;
+                var tbody = $(this).closest('tbody');
+                $(tbody).find(inputClassFilter).each(function () {
+                    var time = moment.duration(this.value);
+
+                    if (this.value.length > 0 && time.asMinutes() == 0) {
+                        hasInvalidValue = true;
+                    }
+                    else {
+                        sum.add(time);
+                    }
+                });
+                if (hasInvalidValue) {
+                    $(tbody).find(outputClassFilter).html('#:##');
+                }
+                else {
+                    if (sum.asMinutes() > 0) {
+                        $(tbody).find(outputClassFilter).html(sum.format('h:mm', {trim: false}));
+                    }
+                    else {
+                        $(tbody).find(outputClassFilter).html(emptyValue);
+                    }
+                }
+            };
+
+            function SumRow(inputClassName, outputClassName, emptyValue) {
+                var sum = moment.duration(0);
+                var hasInvalidValue = false;
+                var thisRow = $(this).closest('tr');
+                //iterate through each input and add to sum
+                $(thisRow).find(inputClassName).each(function () {
+                    var time = moment.duration(this.value);
+
+                    if (this.value.length > 0 && time.asMinutes() == 0) {
+                        hasInvalidValue = true;
+                    }
+                    else {
+                        sum.add(time);
+                    }
+                });
+
+                if (hasInvalidValue) {
+                    $(thisRow).find(outputClassName).html('#:##');
+                }
+                else {
+                    if (sum.asMinutes() > 0) {
+                        $(thisRow).find(outputClassName).html(sum.format('h:mm', {trim: false}));
+                    }
+                    else {
+                        $(thisRow).find(outputClassName).html(emptyValue);
+                    }
+                }
+            };
+        });
+    </script>
 {% endblock %}
 

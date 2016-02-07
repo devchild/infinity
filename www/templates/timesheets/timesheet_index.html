@@ -9,7 +9,7 @@
     {% for item in timesheets %}
     <li>
     <ul>
-        {{ item }}<a href="{{ url_for('timesheet.edit', id=item.id) }}">Edit</a><a href="{{ url_for('timesheet.show', id=item.id) }}">Show</a>
+        {{ item }}<a href="{{ url_for('timesheet.edit', id=item.id) }}">Edit</a><a href="{{ url_for('timesheet.show', id=item.id) }}">Show</a><a href="{{ url_for('timesheet.print', id=item.id) }}">Print</a>
     </ul>
     </li>
 

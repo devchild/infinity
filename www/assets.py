@@ -12,6 +12,9 @@ css = Bundle(
 js = Bundle(
     'libs/jQuery/dist/jquery.js',
     'libs/bootstrap/dist/js/bootstrap.js',
+    'libs/moments/moment.js',
+    'libs/moments/moment-duration-format.js',
+    'libs/jQuery-Mask-Plugin/dist/jquery.mask.js',
     'js/plugins.js',
     filters='jsmin',
     output='public/js/common.js'
