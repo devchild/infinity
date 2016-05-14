@@ -2,7 +2,7 @@
 Infinity
 ===============================
 
-Infinity Timesheet App
+Infinity Timesheet App using python and django
 
 
 Quickstart
